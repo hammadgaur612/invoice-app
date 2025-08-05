@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Interactive Quotation - NISMA AL BAHJA CONTRACTING EST.</title>
+
+  <!-- Tailwind for dev (replace with compiled CSS for production) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+  <!-- Export to PDF (html2canvas + jsPDF) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+          integrity="sha512-YcsIPQZx3nKpSAXkA1o2zq0m9W6skAhdX3Y8y3K1WzZkN0Q/0g5cIPh2fQ2t0vM1nQyX0T0bQGQJX8qkY8G4nA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!-- Fallback if CDN fails (put a local copy at vendor/html2pdf.bundle.min.js) -->
+  <!-- Fallback if CDN fails -->
+<script>
+    (function ensureHtml2Pdf() {
+      function injectFallback() {
+        if (window.html2pdf) return; // already loaded
+  
+        const fallbackScript = document.createElement('script');
+        fallbackScript.src = 'vendor/html2pdf.bundle.min.js';  // ✅ GIVE THE PATH HERE
+        fallbackScript.defer = true;
+        document.head.appendChild(fallbackScript);
+      }
+  
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', injectFallback);
+      } else {
+        injectFallback();
+      }
+    })();
+  </script>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    [contenteditable="true"] { outline: 2px dashed #d1d5db; cursor: text; padding: 0.5rem; }
+    [contenteditable="true"]:focus { outline: 2px solid #3b82f6; background-color: #eff6ff; }
+    [dir="rtl"] { text-align: right; }
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 0; margin: 0; }
+      .no-print { display: none; }
+      #invoice-container { max-width: 100% !important; width: 100% !important; box-shadow: none !important; border-radius: 0 !important; border: none !important; }
+      thead { display: table-header-group; }
+      tfoot { display: table-row-group; }
+      .data-row, #closing-section, #terms-section { page-break-inside: avoid; }
+      .print-text { border: none !important; padding: 0 !important; -webkit-appearance: none; appearance: none; background: transparent !important; width: auto !important; }
+      input[type="date"]::-webkit-calendar-picker-indicator { display: none; }
+      td[contenteditable="true"], div[contenteditable="true"] { border: 1px solid transparent !important; outline: none !important; }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 p-4 sm:p-8">
+
+  <div class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg" id="invoice-container">
+    <!-- Header -->
+    <header class="p-6 sm:p-8 border-b-2 border-gray-200">
+      <div class="flex justify-between items-center">
+        <div class="text-xs text-gray-700">
+          <h1 class="font-bold text-sm text-black">NISMA ALBAHJA CONTRACTING EST.</h1>
+          <p>C.R.: 1010393900</p>
+          <p>VAT No.: 302270109300003</p>
+        </div>
+
+        <div class="w-40 h-28 flex items-center justify-center">
+          <img src="images/logo.png" alt="Company Logo" class="max-w-full max-h-full object-contain" />
+        </div>
+
+        <div class="text-xs text-gray-700" dir="rtl">
+          <h1 class="font-bold text-sm text-black">مؤسسة نسمة البهجة للمقاولات</h1>
+          <p>س.ت: 1010393900</p>
+          <p>الرقم الضريبي: 302270109300003</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <main class="p-6 sm:p-8">
+      <!-- Quotation Info -->
+      <div class="grid grid-cols-2 gap-x-8 mb-8 text-sm">
+        <div>
+          <div class="flex items-center mb-2">
+            <label for="ref" class="font-semibold w-32">Ref:</label>
+            <input type="text" id="ref" class="border rounded px-2 py-1 w-full print-text" value="NABCO/24-1121">
+          </div>
+          <div class="flex items-center mb-2">
+            <label for="to" class="font-semibold w-32">To:</label>
+            <input type="text" id="to" class="border rounded px-2 py-1 w-full print-text" value="Eng. Mohammed Moustafa.">
+          </div>
+          <div class="flex items-center">
+            <label for="subject" class="font-semibold w-32">Subject:</label>
+            <input type="text" id="subject" class="border rounded px-2 py-1 w-full print-text" value="Quotation for Aluminum and Glass work.">
+          </div>
+        </div>
+        <div class="text-right">
+          <div class="flex items-center justify-end">
+            <label for="date" class="font-semibold mr-2">Date:</label>
+            <input type="date" id="date" class="border rounded px-2 py-1 print-text">
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-x-8 mb-8 text-sm">
+        <div>
+          <div class="flex items-center mb-2">
+            <label for="client" class="font-semibold w-48">Client:</label>
+            <input type="text" id="client" class="border rounded px-2 py-1 w-full print-text" value="MBL Company.">
+          </div>
+          <div class="flex items-center mb-2">
+            <label for="location" class="font-semibold w-48">Project and Location:</label>
+            <input type="text" id="location" class="border rounded px-2 py-1 w-full print-text" value="Jubaila/ Riyadh.">
+          </div>
+          <p class="font-bold text-blue-600 mt-2">
+            <span class="font-semibold">Cost of the project Approx.:</span>
+            <span id="approxCost">Saudi riyal – 254,078.70 SR.</span>
+          </p>
+        </div>
+        <div class="text-right">
+          <div class="flex items-center justify-end">
+            <label for="cr_no" class="font-semibold mr-2">C.R No:</label>
+            <input type="text" id="cr_no" class="border rounded px-2 py-1 w-48 text-right print-text" value="......................">
+          </div>
+        </div>
+      </div>
+
+      <!-- Items Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left text-gray-600" id="invoice-table">
+          <thead class="bg-gray-50 text-xs uppercase text-gray-700">
+            <tr>
+              <th class="px-4 py-3">S/No.</th>
+              <th class="px-4 py-3">Description</th>
+              <th class="px-4 py-3 text-center">W</th>
+              <th class="px-4 py-3 text-center">H</th>
+              <th class="px-4 py-3 text-center">Qty.</th>
+              <th class="px-4 py-3 text-center">Sq/Mtr</th>
+              <th class="px-4 py-3 text-right">Rate SR</th>
+              <th class="px-4 py-3 text-right">Amount SR</th>
+              <th class="px-1 py-3 no-print"></th>
+            </tr>
+          </thead>
+
+          <tbody id="doors-body">
+            <tr class="bg-blue-50 border-b">
+              <td colspan="8" class="px-4 py-3 font-bold text-blue-800" contenteditable="true">
+                Fabrication, supply and installation Aluminum hinge doors as per the provided drawings.
+              </td>
+              <td class="no-print text-center">
+                <button onclick="addRow('doors-body')" class="text-blue-600 hover:text-blue-800 font-bold text-xl">+</button>
+              </td>
+            </tr>
+
+            <tr class="border-b data-row">
+              <td class="px-4 py-2 row-s-no">1</td>
+              <td class="px-4 py-2 font-medium" contenteditable="true">DOOR- D1</td>
+              <td class="px-4 py-2 text-center" contenteditable="true">2.00</td>
+              <td class="px-4 py-2 text-center" contenteditable="true">3.30</td>
+              <td class="px-4 py-2 text-center" contenteditable="true">1</td>
+              <td class="px-4 py-2 text-center row-sq-mtr">6.60</td>
+              <td class="px-4 py-2 text-right" contenteditable="true">1300</td>
+              <td class="px-4 py-2 text-right font-semibold row-amount">8580.00</td>
+              <td class="px-1 py-2 no-print text-center"><button class="delete-row text-red-500 hover:text-red-700">✖</button></td>
+            </tr>
+          </tbody>
+
+          <tbody id="windows-body">
+            <tr class="bg-green-50 border-b">
+              <td colspan="8" class="px-4 py-3 font-bold text-green-800" contenteditable="true">
+                Fabrication, supply and installation Aluminum hinge windows as per the provided drawings.
+              </td>
+              <td class="no-print text-center">
+                <button onclick="addRow('windows-body')" class="text-green-600 hover:text-green-800 font-bold text-xl">+</button>
+              </td>
+            </tr>
+
+            <tr class="border-b data-row">
+              <td class="px-4 py-2 row-s-no">2</td>
+              <td class="px-4 py-2 font-medium" contenteditable="true">WINDOW-W1</td>
+              <td class="px-4 py-2 text-center" contenteditable="true">1.60</td>
+              <td class="px-4 py-2 text-center" contenteditable="true">3.15</td>
+              <td class="px-4 py-2 text-center" contenteditable="true">13</td>
+              <td class="px-4 py-2 text-center row-sq-mtr">5.04</td>
+              <td class="px-4 py-2 text-right" contenteditable="true">1100</td>
+              <td class="px-4 py-2 text-right font-semibold row-amount">72072.00</td>
+              <td class="px-1 py-2 no-print text-center"><button class="delete-row text-red-500 hover:text-red-700">✖</button></td>
+            </tr>
+          </tbody>
+
+          <tfoot>
+            <tr class="font-semibold text-gray-900">
+              <th colspan="7" class="px-4 py-3 text-right text-base">AMOUNT</th>
+              <td class="px-4 py-3 text-base text-right" id="subtotal">220,938.00</td>
+              <td class="no-print"></td>
+            </tr>
+            <tr class="font-semibold text-gray-900">
+              <th colspan="7" class="px-4 py-3 text-right text-base">VAT 15%</th>
+              <td class="px-4 py-3 text-base text-right" id="vat">33,140.70</td>
+              <td class="no-print"></td>
+            </tr>
+            <tr class="font-bold text-lg text-blue-600">
+              <th colspan="7" class="px-4 py-3 text-right">GRAND TOTAL</th>
+              <td class="px-4 py-3 text-right" id="grand-total">254,078.70</td>
+              <td class="no-print"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <!-- Terms & Conditions -->
+      <div id="terms-section" class="mt-8 pt-6 border-t">
+        <h3 class="text-md font-semibold mb-2">Terms & Conditions:</h3>
+        <div contenteditable="true" class="list-disc list-inside text-sm text-gray-600 space-y-1 p-2">
+          <p>• Price Includes Fabrication, Supply & Installation Only.</p>
+          <p>• Inclusion of new details/revised drawings and Quantities may affect the price.</p>
+          <p>• Completion of work – discuss at the time of contract.</p>
+          <p>• This offer is valid for acceptance for 30 days from the date of offer.</p>
+        </div>
+      </div>
+
+      <!-- Closing -->
+      <div id="closing-section" class="mt-8 text-sm text-gray-700">
+        <p>Assuring you of best services</p>
+        <p class="font-semibold">Thanks & Regards,</p>
+        <div class="relative w-48 h-32 mt-2">
+          <p class="font-bold absolute bottom-2 left-2 z-10">NISMA AL BAHJA CO.</p>
+          <img src="images/mohor.png" alt="Company Seal" class="absolute top-0 left-8 w-32 h-32 opacity-70"/>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="p-4 text-white text-xs text-center" style="background-color: #0d47a1;">
+      <p>
+        <span dir="rtl">المركز الرئيسي - الرياض - مخرج (26) شارع لبيد بن ربيعة رضي الله عنه - رقم المبنى: 7553 ص.ب 12986</span><br>
+        <span>Mobile: 0508888487 - 0569552733 | Email: nismaalbahja@outlook.com</span>
+      </p>
+    </footer>
+  </div>
+
+  <!-- Export Button -->
+  <div class="max-w-4xl mx-auto mt-6 text-center no-print">
+    <button id="exportBtn"
+            class="px-6 py-2 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75">
+      Export to PDF
+    </button>
+    <p id="exportStatus" class="mt-2 text-sm text-gray-600"></p>
+  </div>
+
+  <script>
+    // ---------- Helpers ----------
+    const table = document.getElementById('invoice-table');
+    const subtotalEl = document.getElementById('subtotal');
+    const vatEl = document.getElementById('vat');
+    const grandTotalEl = document.getElementById('grand-total');
+    const approxCostEl = document.getElementById('approxCost');
+    const exportBtn = document.getElementById('exportBtn');
+    const exportStatus = document.getElementById('exportStatus');
+
+    function formatNumber(num) {
+      return Number(num || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function parseNumber(str) {
+      if (typeof str !== 'string') str = String(str);
+      return parseFloat(str.replace(/,/g, '')) || 0;
+    }
+
+    function updateTotals() {
+      let subtotal = 0;
+      const rows = table.querySelectorAll('.data-row');
+      rows.forEach((row, idx) => {
+        row.querySelector('.row-s-no').textContent = idx + 1;
+
+        const w = parseNumber(row.cells[2].textContent);
+        const h = parseNumber(row.cells[3].textContent);
+        const qty = parseNumber(row.cells[4].textContent);
+        const rate = parseNumber(row.cells[6].textContent);
+
+        const sqMtr = w * h;
+        const amount = sqMtr * qty * rate;
+
+        row.querySelector('.row-sq-mtr').textContent = formatNumber(sqMtr);
+        row.querySelector('.row-amount').textContent = formatNumber(amount);
+
+        subtotal += amount;
+      });
+
+      const vat = subtotal * 0.15;
+      const grandTotal = subtotal + vat;
+
+      subtotalEl.textContent = formatNumber(subtotal);
+      vatEl.textContent = formatNumber(vat);
+      grandTotalEl.textContent = formatNumber(grandTotal);
+
+      approxCostEl.textContent = `Saudi riyal – ${formatNumber(grandTotal)} SR.`;
+    }
+
+    function addRow(tbodyId) {
+      const tbody = document.getElementById(tbodyId);
+      const newRow = document.createElement('tr');
+      newRow.classList.add('border-b', 'data-row');
+      newRow.innerHTML = `
+        <td class="px-4 py-2 row-s-no"></td>
+        <td class="px-4 py-2 font-medium" contenteditable="true">New Item</td>
+        <td class="px-4 py-2 text-center" contenteditable="true">0.00</td>
+        <td class="px-4 py-2 text-center" contenteditable="true">0.00</td>
+        <td class="px-4 py-2 text-center" contenteditable="true">1</td>
+        <td class="px-4 py-2 text-center row-sq-mtr">0.00</td>
+        <td class="px-4 py-2 text-right" contenteditable="true">0.00</td>
+        <td class="px-4 py-2 text-right font-semibold row-amount">0.00</td>
+        <td class="px-1 py-2 no-print text-center"><button class="delete-row text-red-500 hover:text-red-700">✖</button></td>
+      `;
+      tbody.appendChild(newRow);
+      updateTotals();
+    }
+
+    // ---------- Robust Export Flow ----------
+    async function exportToPdf() {
+      // Guard: if library isn’t available, show a helpful message
+      if (!window.html2pdf) {
+        alert('Export library (html2pdf) not loaded yet. If you opened this file via file://, run it via a local server (http://localhost) or keep the fallback file at vendor/html2pdf.bundle.min.js.');
+        return;
+      }
+
+      const element = document.getElementById('invoice-container');
+      const refNumber = document.getElementById('ref').value || 'quotation';
+      const fileName = `Quotation-${refNumber.replace(/[/\\?%*:|"<>]/g, '-')}.pdf`;
+
+      const opt = {
+        margin: 0.2,
+        filename: fileName,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['css', 'legacy'] }
+      };
+
+      try {
+        exportBtn.disabled = true;
+        exportBtn.classList.add('opacity-60', 'cursor-not-allowed');
+        exportStatus.textContent = 'Preparing PDF… (loading images & fonts)';
+
+        const images = element.querySelectorAll('img');
+        const imagePromises = Array.from(images).map(img => {
+          if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+          return new Promise(resolve => { img.onload = img.onerror = resolve; });
+        });
+
+        const fontPromise = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+        const settlePromise = new Promise(resolve => setTimeout(resolve, 50));
+
+        await Promise.all([Promise.all(imagePromises), fontPromise, settlePromise]);
+
+        exportStatus.textContent = 'Rendering PDF…';
+        await html2pdf().set(opt).from(element).save();
+
+        exportStatus.textContent = 'Done. Your PDF has been downloaded.';
+      } catch (err) {
+        console.error(err);
+        exportStatus.textContent = 'Failed to export. See console for details.';
+        alert('Export failed. If you opened this file directly (file:///), please run it via a local server (http://localhost).');
+      } finally {
+        exportBtn.disabled = false;
+        exportBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+        setTimeout(() => (exportStatus.textContent = ''), 4000);
+      }
+    }
+
+    // ---------- Events ----------
+    table.addEventListener('input', e => {
+      if (e.target.hasAttribute('contenteditable')) updateTotals();
+    });
+
+    table.addEventListener('click', e => {
+      if (e.target.classList.contains('delete-row')) {
+        e.preventDefault();
+        e.target.closest('.data-row')?.remove();
+        updateTotals();
+      }
+    });
+
+    document.getElementById('date').valueAsDate = new Date();
+    window.addEventListener('load', updateTotals);
+
+    exportBtn.addEventListener('click', exportToPdf);
+  </script>
+</body>
+</html>
