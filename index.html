@@ -3,84 +3,143 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NISMA AL BAHJA CONTRACTING EST.</title>
+  <title>Interactive Quotation - NISMA AL BAHJA CONTRACTING EST.</title>
 
-  <!-- Tailwind for dev (replace with compiled CSS for production) -->
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 
-  <!-- Export to PDF (html2canvas + jsPDF) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
-          integrity="sha512-YcsIPQZx3nKpSAXkA1o2zq0m9W6skAhdX3Y8y3K1WzZkN0Q/0g5cIPh2fQ2t0vM1nQyX0T0bQGQJX8qkY8G4nA=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <!-- Fallback if CDN fails (put a local copy at vendor/html2pdf.bundle.min.js) -->
-  <!-- Fallback if CDN fails -->
-<script>
-    (function ensureHtml2Pdf() {
-      function injectFallback() {
-        if (window.html2pdf) return; // already loaded
-  
-        const fallbackScript = document.createElement('script');
-        fallbackScript.src = 'vendor/html2pdf.bundle.min.js';  // ✅ GIVE THE PATH HERE
-        fallbackScript.defer = true;
-        document.head.appendChild(fallbackScript);
-      }
-  
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', injectFallback);
-      } else {
-        injectFallback();
-      }
-    })();
-  </script>
-
   <style>
     body { font-family: 'Inter', sans-serif; }
+    /* Styles for editable content, showing a dashed border when not focused */
     [contenteditable="true"] { outline: 2px dashed #d1d5db; cursor: text; padding: 0.5rem; }
+    /* Styles for editable content when focused, making it more prominent */
     [contenteditable="true"]:focus { outline: 2px solid #3b82f6; background-color: #eff6ff; }
+    /* Right-to-left text alignment for Arabic sections */
     [dir="rtl"] { text-align: right; }
+    /* Style for draggable table headers */
+    th[draggable="true"] { cursor: grab; }
+    th[draggable="true"]:active { cursor: grabbing; }
+    /* Print-specific styles to ensure a clean printout */
     @media print {
       body { -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 0; margin: 0; }
+      /* Hide elements that should not appear in print (e.g., buttons, status messages) */
       .no-print { display: none; }
+      /* Adjust the invoice container for printing, removing shadows and borders */
       #invoice-container { max-width: 100% !important; width: 100% !important; box-shadow: none !important; border-radius: 0 !important; border: none !important; }
+
+      /* Fixed Header for printing */
+      header {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background-color: white; /* Ensure background is white for print */
+        border-bottom: 2px solid #e5e7eb; /* Keep the border */
+        padding: 1.5rem 2rem; /* Match existing padding */
+        z-index: 1000; /* Ensure it stays on top */
+      }
+
+      /* Fixed Footer for printing */
+      footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: #0d47a1; /* Ensure background color for print */
+        color: white;
+        padding: 1rem; /* Match existing padding */
+        z-index: 1000; /* Ensure it stays on top */
+      }
+
+      /* Adjust main content padding to prevent overlap with fixed header/footer */
+      main {
+        padding-top: 120px; /* Approximate height of header */
+        padding-bottom: 60px; /* Approximate height of footer */
+      }
+
+      /* Ensure table headers repeat on each page */
       thead { display: table-header-group; }
+      /* Ensure table footers repeat on each page */
       tfoot { display: table-row-group; }
+      /* Prevent page breaks inside data rows, closing section, and terms section */
       .data-row, #closing-section, #terms-section { page-break-inside: avoid; }
+      /* Remove borders and backgrounds from text inputs for printing */
       .print-text { border: none !important; padding: 0 !important; -webkit-appearance: none; appearance: none; background: transparent !important; width: auto !important; }
+      /* Hide the calendar picker icon for date inputs when printing */
       input[type="date"]::-webkit-calendar-picker-indicator { display: none; }
+      /* Remove borders and outlines from contenteditable cells/divs when printing */
       td[contenteditable="true"], div[contenteditable="true"] { border: 1px solid transparent !important; outline: none !important; }
+      /* Ensure header items have no outlines in print */
+      .header-item { outline: none !important; }
+      /* Ensure table headers have no outlines in print */
+      th[contenteditable="true"] { outline: none !important; }
+      /* Hide the VAT input field and show its value as plain text when printing */
+      .vat-input-container input {
+        display: none;
+      }
+      .vat-input-container span {
+        display: inline !important;
+      }
     }
   </style>
 </head>
 <body class="bg-gray-100 p-4 sm:p-8">
 
   <div class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg" id="invoice-container">
-    <!-- Header -->
+    <!-- Header Section -->
     <header class="p-6 sm:p-8 border-b-2 border-gray-200">
       <div class="flex justify-between items-center">
-        <div class="text-xs text-gray-700">
-          <h1 class="font-bold text-sm text-black">NISMA ALBAHJA CONTRACTING EST.</h1>
-          <p>C.R.: 1010393900</p>
-          <p>VAT No.: 302270109300003</p>
+        <!-- Left Header Section (English) -->
+        <div id="header-left" class="text-xs text-gray-700">
+          <!-- Company Name (editable) -->
+          <h1 class="font-bold text-sm text-black" contenteditable="true">NISMA ALBAHJA CONTRACTING EST.</h1>
+          <!-- Container for dynamic header items -->
+          <div id="header-left-items">
+            <!-- Initial header items -->
+            <div class="header-item flex items-center group">
+              <p contenteditable="true">C.R.: 1010393900</p>
+              <button class="delete-header-item text-red-500 hover:text-red-700 ml-2 text-xs no-print hidden group-hover:inline">✖</button>
+            </div>
+            <div class="header-item flex items-center group">
+              <p contenteditable="true">VAT No.: 302270109300003</p>
+              <button class="delete-header-item text-red-500 hover:text-red-700 ml-2 text-xs no-print hidden group-hover:inline">✖</button>
+            </div>
+          </div>
+          <!-- Button to add new items to this section -->
+          <button onclick="addHeaderItem('header-left-items')" class="text-blue-600 hover:text-blue-800 font-bold text-xl no-print mt-1">+</button>
         </div>
 
+        <!-- Company Logo -->
         <div class="w-40 h-28 flex items-center justify-center">
-          <img src="images/logo.png" alt="Company Logo" class="max-w-full max-h-full object-contain" />
+          <img src="images/logo.png" alt="Company Logo" class="max-w-full max-h=full object-contain" />
         </div>
 
-        <div class="text-xs text-gray-700" dir="rtl">
-          <h1 class="font-bold text-sm text-black">مؤسسة نسمة البهجة للمقاولات</h1>
-          <p>س.ت: 1010393900</p>
-          <p>الرقم الضريبي: 302270109300003</p>
+        <!-- Right Header Section (Arabic) -->
+        <div id="header-right" class="text-xs text-gray-700" dir="rtl">
+          <!-- Company Name (editable) -->
+          <h1 class="font-bold text-sm text-black" contenteditable="true">مؤسسة نسمة البهجة للمقاولات</h1>
+          <!-- Container for dynamic header items -->
+          <div id="header-right-items">
+            <!-- Initial header items -->
+            <div class="header-item flex items-center group">
+              <p contenteditable="true">س.ت: 1010393900</p>
+              <button class="delete-header-item text-red-500 hover:text-red-700 ml-2 text-xs no-print hidden group-hover:inline">✖</button>
+            </div>
+            <div class="header-item flex items-center group">
+              <p contenteditable="true">الرقم الضريبي: 302270109300003</p>
+              <button class="delete-header-item text-red-500 hover:text-red-700 ml-2 text-xs no-print hidden group-hover:inline">✖</button>
+            </div>
+          </div>
+          <!-- Button to add new items to this section -->
+          <button onclick="addHeaderItem('header-right-items')" class="text-blue-600 hover:text-blue-800 font-bold text-xl no-print mt-1">+</button>
         </div>
       </div>
     </header>
 
-    <!-- Main -->
+    <!-- Main Content Section -->
     <main class="p-6 sm:p-8">
-      <!-- Quotation Info -->
+      <!-- Quotation Information -->
       <div class="grid grid-cols-2 gap-x-8 mb-8 text-sm">
         <div>
           <div class="flex items-center mb-2">
@@ -131,22 +190,22 @@
       <div class="overflow-x-auto">
         <table class="w-full text-sm text-left text-gray-600" id="invoice-table">
           <thead class="bg-gray-50 text-xs uppercase text-gray-700">
-            <tr>
-              <th class="px-4 py-3">S/No.</th>
-              <th class="px-4 py-3">Description</th>
-              <th class="px-4 py-3 text-center">W</th>
-              <th class="px-4 py-3 text-center">H</th>
-              <th class="px-4 py-3 text-center">Qty.</th>
-              <th class="px-4 py-3 text-center">Sq/Mtr</th>
-              <th class="px-4 py-3 text-right">Rate SR</th>
-              <th class="px-4 py-3 text-right">Amount SR</th>
-              <th class="px-1 py-3 no-print"></th>
+            <tr id="table-header-row">
+              <th class="px-4 py-3" contenteditable="true" draggable="true" data-column-type="s-no">S/No.</th>
+              <th class="px-4 py-3" contenteditable="true" draggable="true" data-column-type="description">Description</th>
+              <!-- Measurement Columns will be added dynamically here -->
+              <th class="px-4 py-3 text-center" contenteditable="true" draggable="true" data-column-type="qty">Qty.</th>
+              <th class="px-4 py-3 text-right" contenteditable="true" draggable="true" data-column-type="rate">Rate SR</th>
+              <th class="px-4 py-3 text-right" contenteditable="true" draggable="true" data-column-type="amount">Amount SR</th>
+              <th class="px-1 py-3 no-print" data-column-type="add-column">
+                <button onclick="addMeasurementColumn()" class="text-blue-600 hover:text-blue-800 font-bold text-xl no-print">+</button>
+              </th>
             </tr>
           </thead>
 
           <tbody id="doors-body">
-            <tr class="bg-blue-50 border-b">
-              <td colspan="8" class="px-4 py-3 font-bold text-blue-800" contenteditable="true">
+            <tr class="bg-blue-50 border-b category-row">
+              <td colspan="5" class="px-4 py-3 font-bold text-blue-800" contenteditable="true">
                 Fabrication, supply and installation Aluminum hinge doors as per the provided drawings.
               </td>
               <td class="no-print text-center">
@@ -155,21 +214,19 @@
             </tr>
 
             <tr class="border-b data-row">
-              <td class="px-4 py-2 row-s-no">1</td>
-              <td class="px-4 py-2 font-medium" contenteditable="true">DOOR- D1</td>
-              <td class="px-4 py-2 text-center" contenteditable="true">2.00</td>
-              <td class="px-4 py-2 text-center" contenteditable="true">3.30</td>
-              <td class="px-4 py-2 text-center" contenteditable="true">1</td>
-              <td class="px-4 py-2 text-center row-sq-mtr">6.60</td>
-              <td class="px-4 py-2 text-right" contenteditable="true">1300</td>
-              <td class="px-4 py-2 text-right font-semibold row-amount">8580.00</td>
-              <td class="px-1 py-2 no-print text-center"><button class="delete-row text-red-500 hover:text-red-700">✖</button></td>
+              <td class="px-4 py-2 row-s-no" data-column-type="s-no">1</td>
+              <td class="px-4 py-2 font-medium" contenteditable="true" data-column-type="description">DOOR- D1</td>
+              <!-- Measurement cells will be added dynamically here -->
+              <td class="px-4 py-2 text-center qty-cell" contenteditable="true" data-column-type="qty">1</td>
+              <td class="px-4 py-2 text-right rate-cell" contenteditable="true" data-column-type="rate">1300</td>
+              <td class="px-4 py-2 text-right font-semibold row-amount amount-cell" data-column-type="amount">0.00</td>
+              <td class="px-1 py-2 no-print text-center" data-column-type="action"><button class="delete-row text-red-500 hover:text-red-700">✖</button></td>
             </tr>
           </tbody>
 
           <tbody id="windows-body">
-            <tr class="bg-green-50 border-b">
-              <td colspan="8" class="px-4 py-3 font-bold text-green-800" contenteditable="true">
+            <tr class="bg-green-50 border-b category-row">
+              <td colspan="5" class="px-4 py-3 font-bold text-green-800" contenteditable="true">
                 Fabrication, supply and installation Aluminum hinge windows as per the provided drawings.
               </td>
               <td class="no-print text-center">
@@ -178,39 +235,42 @@
             </tr>
 
             <tr class="border-b data-row">
-              <td class="px-4 py-2 row-s-no">2</td>
-              <td class="px-4 py-2 font-medium" contenteditable="true">WINDOW-W1</td>
-              <td class="px-4 py-2 text-center" contenteditable="true">1.60</td>
-              <td class="px-4 py-2 text-center" contenteditable="true">3.15</td>
-              <td class="px-4 py-2 text-center" contenteditable="true">13</td>
-              <td class="px-4 py-2 text-center row-sq-mtr">5.04</td>
-              <td class="px-4 py-2 text-right" contenteditable="true">1100</td>
-              <td class="px-4 py-2 text-right font-semibold row-amount">72072.00</td>
-              <td class="px-1 py-2 no-print text-center"><button class="delete-row text-red-500 hover:text-red-700">✖</button></td>
+              <td class="px-4 py-2 row-s-no" data-column-type="s-no">2</td>
+              <td class="px-4 py-2 font-medium" contenteditable="true" data-column-type="description">WINDOW-W1</td>
+              <!-- Measurement cells will be added dynamically here -->
+              <td class="px-4 py-2 text-center qty-cell" contenteditable="true" data-column-type="qty">13</td>
+              <td class="px-4 py-2 text-right rate-cell" contenteditable="true" data-column-type="rate">1100</td>
+              <td class="px-4 py-2 text-right font-semibold row-amount amount-cell" data-column-type="amount">0.00</td>
+              <td class="px-1 py-2 no-print text-center" data-column-type="action"><button class="delete-row text-red-500 hover:text-red-700">✖</button></td>
             </tr>
           </tbody>
 
           <tfoot>
             <tr class="font-semibold text-gray-900">
-              <th colspan="7" class="px-4 py-3 text-right text-base">AMOUNT</th>
-              <td class="px-4 py-3 text-base text-right" id="subtotal">220,938.00</td>
+              <th colspan="4" class="px-4 py-3 text-right text-base" id="footer-amount-colspan">AMOUNT</th>
+              <td class="px-4 py-3 text-base text-right" id="subtotal">0.00</td>
               <td class="no-print"></td>
             </tr>
             <tr class="font-semibold text-gray-900">
-              <th colspan="7" class="px-4 py-3 text-right text-base">VAT 15%</th>
-              <td class="px-4 py-3 text-base text-right" id="vat">33,140.70</td>
+              <th colspan="4" class="px-4 py-3 text-right text-base" id="footer-vat-colspan">
+                <span class="vat-input-container">
+                  VAT <input type="number" id="vat-percentage" value="15" min="0" step="0.1" class="w-16 text-right border rounded px-1 py-0.5 print-text inline-block" oninput="updateTotals()">%
+                  <span class="hidden"></span> <!-- Span for print view -->
+                </span>
+              </th>
+              <td class="px-4 py-3 text-base text-right" id="vat">0.00</td>
               <td class="no-print"></td>
             </tr>
             <tr class="font-bold text-lg text-blue-600">
-              <th colspan="7" class="px-4 py-3 text-right">GRAND TOTAL</th>
-              <td class="px-4 py-3 text-right" id="grand-total">254,078.70</td>
+              <th colspan="4" class="px-4 py-3 text-right" id="footer-grand-total-colspan">GRAND TOTAL</th>
+              <td class="px-4 py-3 text-right" id="grand-total">0.00</td>
               <td class="no-print"></td>
             </tr>
           </tfoot>
         </table>
       </div>
 
-      <!-- Terms & Conditions -->
+      <!-- Terms & Conditions Section -->
       <div id="terms-section" class="mt-8 pt-6 border-t">
         <h3 class="text-md font-semibold mb-2">Terms & Conditions:</h3>
         <div contenteditable="true" class="list-disc list-inside text-sm text-gray-600 space-y-1 p-2">
@@ -221,18 +281,19 @@
         </div>
       </div>
 
-      <!-- Closing -->
+      <!-- Closing Section -->
       <div id="closing-section" class="mt-8 text-sm text-gray-700">
         <p>Assuring you of best services</p>
         <p class="font-semibold">Thanks & Regards,</p>
         <div class="relative w-48 h-32 mt-2">
           <p class="font-bold absolute bottom-2 left-2 z-10">NISMA AL BAHJA CO.</p>
+          <!-- Placeholder image for company seal -->
           <img src="images/mohor.png" alt="Company Seal" class="absolute top-0 left-8 w-32 h-32 opacity-70"/>
         </div>
       </div>
     </main>
 
-    <!-- Footer -->
+    <!-- Footer Section -->
     <footer class="p-4 text-white text-xs text-center" style="background-color: #0d47a1;">
       <p>
         <span dir="rtl">المركز الرئيسي - الرياض - مخرج (26) شارع لبيد بن ربيعة رضي الله عنه - رقم المبنى: 7553 ص.ب 12986</span><br>
@@ -241,151 +302,541 @@
     </footer>
   </div>
 
-  <!-- Export Button -->
+  <!-- Print Button -->
   <div class="max-w-4xl mx-auto mt-6 text-center no-print">
-    <button id="exportBtn"
-            class="px-6 py-2 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75">
-      Export to PDF
+    <button id="printBtn"
+            class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75">
+      Print Quotation
     </button>
-    <p id="exportStatus" class="mt-2 text-sm text-gray-600"></p>
   </div>
 
   <script>
-    // ---------- Helpers ----------
+    // Global references to frequently accessed DOM elements
     const table = document.getElementById('invoice-table');
+    const tableHeaderRow = document.getElementById('table-header-row');
     const subtotalEl = document.getElementById('subtotal');
     const vatEl = document.getElementById('vat');
     const grandTotalEl = document.getElementById('grand-total');
     const approxCostEl = document.getElementById('approxCost');
-    const exportBtn = document.getElementById('exportBtn');
-    const exportStatus = document.getElementById('exportStatus');
+    const printBtn = document.getElementById('printBtn');
+    const vatPercentageInput = document.getElementById('vat-percentage');
 
+    // Footer colspan elements
+    const footerAmountColspan = document.getElementById('footer-amount-colspan');
+    const footerVatColspan = document.getElementById('footer-vat-colspan');
+    const footerGrandTotalColspan = document.getElementById('footer-grand-total-colspan');
+
+    let draggedColumn = null; // Stores the header being dragged
+
+    /**
+     * Formats a number to a string with two decimal places and locale-specific thousands separators.
+     * @param {number} num - The number to format.
+     * @returns {string} The formatted number string.
+     */
     function formatNumber(num) {
       return Number(num || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
+
+    /**
+     * Parses a string into a floating-point number, handling comma separators.
+     * @param {string|number} str - The string or number to parse.
+     * @returns {number} The parsed number.
+     */
     function parseNumber(str) {
       if (typeof str !== 'string') str = String(str);
       return parseFloat(str.replace(/,/g, '')) || 0;
     }
 
+    /**
+     * Updates the colspan attribute for category rows (e.g., "Fabrication, supply...")
+     * to match the current number of columns in the table, excluding the last action column.
+     */
+    function updateCategoryRowColspans() {
+      const currentColumnCount = tableHeaderRow.cells.length;
+      document.querySelectorAll('.category-row').forEach(row => {
+        // The last cell is the add row button, so its colspan should cover all columns except the last one.
+        row.firstElementChild.setAttribute('colspan', currentColumnCount - 1);
+      });
+    }
+
+    /**
+     * Updates the colspan for the footer rows (AMOUNT, VAT, GRAND TOTAL)
+     * to ensure they align correctly with the dynamic columns.
+     */
+    function updateFooterColspans() {
+      const amountHeader = tableHeaderRow.querySelector('[data-column-type="amount"]');
+      if (amountHeader) {
+        // The colspan should be the index of the 'Amount SR' column.
+        // This index represents the number of columns from the start up to (but not including) the 'Amount SR' column.
+        const amountColumnIndex = Array.from(tableHeaderRow.children).indexOf(amountHeader);
+        footerAmountColspan.setAttribute('colspan', amountColumnIndex);
+        footerVatColspan.setAttribute('colspan', amountColumnIndex);
+        footerGrandTotalColspan.setAttribute('colspan', amountColumnIndex);
+      }
+    }
+
+
+    /**
+     * Recalculates all totals (subtotal, VAT, grand total) based on table data.
+     * Updates the corresponding DOM elements.
+     */
     function updateTotals() {
-      let subtotal = 0;
       const rows = table.querySelectorAll('.data-row');
+      let subtotal = 0;
+
+      // Find 'W', 'H', 'Qty', 'Rate', 'Sq/Mtr', 'Amount' header indices
+      let wIndex = -1, hIndex = -1, qtyIndex = -1, rateIndex = -1, sqMtrIndex = -1, amountIndex = -1;
+      Array.from(tableHeaderRow.children).forEach((th, index) => {
+        const headerText = th.textContent.trim().toLowerCase().replace('✖', ''); // Remove '✖' for comparison
+        if (th.dataset.columnType === 'measurement') {
+          if (headerText === 'w') wIndex = index;
+          if (headerText === 'h') hIndex = index;
+        } else if (th.dataset.columnType === 'qty') {
+          qtyIndex = index;
+        } else if (th.dataset.columnType === 'rate') {
+          rateIndex = index;
+        } else if (th.dataset.columnType === 'sq-mtr') {
+          sqMtrIndex = index;
+        } else if (th.dataset.columnType === 'amount') {
+          amountIndex = index;
+        }
+      });
+
       rows.forEach((row, idx) => {
-        row.querySelector('.row-s-no').textContent = idx + 1;
+        row.querySelector('[data-column-type="s-no"]').textContent = idx + 1;
 
-        const w = parseNumber(row.cells[2].textContent);
-        const h = parseNumber(row.cells[3].textContent);
-        const qty = parseNumber(row.cells[4].textContent);
-        const rate = parseNumber(row.cells[6].textContent);
+        let sqMtrForCalculation = 1; // Default to 1 for Qty * Rate calculation
+        let sqMtrForDisplay = 0;    // Default to 0 for Sq/Mtr cell display
 
-        const sqMtr = w * h;
-        const amount = sqMtr * qty * rate;
+        let wValue = 0;
+        let hValue = 0;
 
-        row.querySelector('.row-sq-mtr').textContent = formatNumber(sqMtr);
-        row.querySelector('.row-amount').textContent = formatNumber(amount);
+        // Get W and H values if columns exist
+        if (wIndex !== -1) {
+          wValue = parseNumber(row.cells[wIndex].textContent);
+        }
+        if (hIndex !== -1) {
+          hValue = parseNumber(row.cells[hIndex].textContent);
+        }
+
+        // Determine sqMtrForCalculation and sqMtrForDisplay
+        if (wIndex !== -1 && hIndex !== -1) {
+          // Both W and H are present, calculate W * H for both calculation and display
+          sqMtrForCalculation = wValue * hValue;
+          sqMtrForDisplay = wValue * hValue;
+        } else {
+          // If W or H (or both) are missing:
+          // sqMtrForCalculation remains 1 (so Amount = Qty * Rate)
+          sqMtrForCalculation = 1;
+          // sqMtrForDisplay should be 0 if the Sq/Mtr column is visible but W/H are not complete
+          sqMtrForDisplay = 0;
+        }
+
+        // Update Sq/Mtr cell display if it exists
+        if (sqMtrIndex !== -1) {
+            row.cells[sqMtrIndex].textContent = formatNumber(sqMtrForDisplay);
+        }
+
+        // Get Qty and Rate values (these indices should always be valid as they are core columns)
+        const qty = parseNumber(row.querySelector('[data-column-type="qty"]').textContent);
+        const rate = parseNumber(row.querySelector('[data-column-type="rate"]').textContent);
+
+        // Calculate Amount using sqMtrForCalculation
+        const amount = sqMtrForCalculation * qty * rate;
+
+        // Update Amount cell
+        row.querySelector('[data-column-type="amount"]').textContent = formatNumber(amount);
 
         subtotal += amount;
       });
 
-      const vat = subtotal * 0.15;
+      // Get VAT percentage from input field
+      const vatPercentage = parseNumber(vatPercentageInput.value);
+      const vat = subtotal * (vatPercentage / 100);
       const grandTotal = subtotal + vat;
 
       subtotalEl.textContent = formatNumber(subtotal);
       vatEl.textContent = formatNumber(vat);
       grandTotalEl.textContent = formatNumber(grandTotal);
-
       approxCostEl.textContent = `Saudi riyal – ${formatNumber(grandTotal)} SR.`;
+
+      // Update the hidden span for print view
+      document.querySelector('#vat-percentage + span').textContent = `${vatPercentage}%`;
     }
 
+    /**
+     * Manages the presence and absence of the 'Sq/Mtr' column based on 'W' and 'H' columns.
+     */
+    function manageSqMtrColumn() {
+      const currentHeaders = Array.from(tableHeaderRow.children);
+      let hasW = false;
+      let hasH = false;
+      let sqMtrHeader = null;
+      let qtyHeader = null;
+
+      currentHeaders.forEach(th => {
+        const headerText = th.textContent.trim().toLowerCase().replace('✖', '');
+        if (th.dataset.columnType === 'measurement') {
+          if (headerText === 'w') hasW = true;
+          if (headerText === 'h') hasH = true;
+        } else if (th.dataset.columnType === 'sq-mtr') {
+          sqMtrHeader = th;
+        } else if (th.dataset.columnType === 'qty') {
+          qtyHeader = th;
+        }
+      });
+
+      if (hasW && hasH && !sqMtrHeader) {
+        // Add Sq/Mtr column
+        const newSqMtrHeader = document.createElement('th');
+        newSqMtrHeader.classList.add('px-4', 'py-3', 'text-center');
+        newSqMtrHeader.setAttribute('contenteditable', 'true');
+        newSqMtrHeader.setAttribute('draggable', 'true');
+        newSqMtrHeader.setAttribute('data-column-type', 'sq-mtr');
+        newSqMtrHeader.textContent = 'Sq/Mtr';
+        tableHeaderRow.insertBefore(newSqMtrHeader, qtyHeader);
+
+        document.querySelectorAll('.data-row').forEach(row => {
+          const newSqMtrCell = document.createElement('td');
+          newSqMtrCell.classList.add('px-4', 'py-2', 'text-center', 'sq-mtr-cell');
+          newSqMtrCell.setAttribute('data-column-type', 'sq-mtr');
+          newSqMtrCell.textContent = '0.00';
+          row.insertBefore(newSqMtrCell, row.querySelector('[data-column-type="qty"]'));
+        });
+      } else if ((!hasW || !hasH) && sqMtrHeader) {
+        // Remove Sq/Mtr column
+        const sqMtrColumnIndex = Array.from(tableHeaderRow.children).indexOf(sqMtrHeader);
+        sqMtrHeader.remove();
+
+        document.querySelectorAll('.data-row').forEach(row => {
+          if (row.cells[sqMtrColumnIndex]) {
+            row.cells[sqMtrColumnIndex].remove();
+          }
+        });
+      }
+
+      updateCategoryRowColspans();
+      updateFooterColspans();
+      updateTotals(); // Recalculate totals after managing Sq/Mtr column
+    }
+
+
+    /**
+     * Adds a new data row to the specified table body.
+     * Dynamically adds cells for all current columns based on header order.
+     * @param {string} tbodyId - The ID of the tbody element to which the row will be added.
+     */
     function addRow(tbodyId) {
       const tbody = document.getElementById(tbodyId);
       const newRow = document.createElement('tr');
       newRow.classList.add('border-b', 'data-row');
-      newRow.innerHTML = `
-        <td class="px-4 py-2 row-s-no"></td>
-        <td class="px-4 py-2 font-medium" contenteditable="true">New Item</td>
-        <td class="px-4 py-2 text-center" contenteditable="true">0.00</td>
-        <td class="px-4 py-2 text-center" contenteditable="true">0.00</td>
-        <td class="px-4 py-2 text-center" contenteditable="true">1</td>
-        <td class="px-4 py-2 text-center row-sq-mtr">0.00</td>
-        <td class="px-4 py-2 text-right" contenteditable="true">0.00</td>
-        <td class="px-4 py-2 text-right font-semibold row-amount">0.00</td>
-        <td class="px-1 py-2 no-print text-center"><button class="delete-row text-red-500 hover:text-red-700">✖</button></td>
-      `;
+
+      // Create cells based on current header order and types
+      Array.from(tableHeaderRow.children).forEach(header => {
+        const newCell = document.createElement('td');
+        const headerType = header.dataset.columnType;
+
+        newCell.classList.add('px-4', 'py-2'); // Base classes for all cells
+
+        if (headerType === 's-no') {
+          newCell.classList.add('row-s-no');
+          // Text content will be set by updateTotals
+        } else if (headerType === 'description') {
+          newCell.classList.add('font-medium');
+          newCell.setAttribute('contenteditable', 'true');
+          newCell.textContent = 'New Item Description';
+        } else if (headerType === 'measurement') {
+          newCell.classList.add('text-center', 'measurement-cell');
+          newCell.setAttribute('contenteditable', 'true');
+          newCell.textContent = '0.00';
+        } else if (headerType === 'qty') {
+          newCell.classList.add('text-center', 'qty-cell');
+          newCell.setAttribute('contenteditable', 'true');
+          newCell.textContent = '1';
+        } else if (headerType === 'sq-mtr') {
+          newCell.classList.add('text-center', 'sq-mtr-cell');
+          newCell.textContent = '0.00';
+        } else if (headerType === 'rate') {
+          newCell.classList.add('text-right', 'rate-cell');
+          newCell.setAttribute('contenteditable', 'true');
+          newCell.textContent = '0.00';
+        } else if (headerType === 'amount') {
+          newCell.classList.add('text-right', 'font-semibold', 'row-amount', 'amount-cell');
+          newCell.textContent = '0.00';
+        } else if (headerType === 'action') { // The delete row button column
+          newCell.classList.add('no-print', 'text-center');
+          newCell.innerHTML = `<button class="delete-row text-red-500 hover:text-red-700">✖</button>`;
+        } else if (headerType === 'add-column') {
+            // This is the '+' button column, it doesn't have a corresponding td in data rows
+            return;
+        }
+
+        // Assign data-column-type to the cell if the header has one, for robust reordering
+        if (headerType) {
+            newCell.setAttribute('data-column-type', headerType);
+        }
+        newRow.appendChild(newCell);
+      });
+
       tbody.appendChild(newRow);
-      updateTotals();
+      updateTotals(); // Recalculate totals after adding a new row
+      manageSqMtrColumn(); // Re-evaluate Sq/Mtr column visibility
     }
 
-    // ---------- Robust Export Flow ----------
-    async function exportToPdf() {
-      // Guard: if library isn’t available, show a helpful message
-      if (!window.html2pdf) {
-        alert('Export library (html2pdf) not loaded yet. If you opened this file via file://, run it via a local server (http://localhost) or keep the fallback file at vendor/html2pdf.bundle.min.js.');
+    /**
+     * Adds a new editable paragraph item to a specified header section.
+     * Includes a delete button for the new item.
+     * @param {string} containerId - The ID of the container div (e.g., 'header-left-items').
+     */
+    function addHeaderItem(containerId) {
+      const container = document.getElementById(containerId);
+      const newItemDiv = document.createElement('div');
+      newItemDiv.classList.add('header-item', 'flex', 'items-center', 'group'); // Add group for hover effect
+      newItemDiv.innerHTML = `
+        <p contenteditable="true">New Header Item</p>
+        <button class="delete-header-item text-red-500 hover:text-red-700 ml-2 text-xs no-print hidden group-hover:inline">✖</button>
+      `;
+      container.appendChild(newItemDiv);
+    }
+
+    /**
+     * Adds a new measurement column to the table.
+     * This involves adding a new header and new cells to all existing rows.
+     */
+    function addMeasurementColumn() {
+      const newHeader = document.createElement('th');
+      newHeader.classList.add('px-4', 'py-3', 'text-center', 'measurement-header');
+      newHeader.setAttribute('contenteditable', 'true');
+      newHeader.setAttribute('draggable', 'true'); // Make new headers draggable
+      newHeader.setAttribute('data-column-type', 'measurement');
+      newHeader.innerHTML = `New Col <button onclick="deleteColumn(this)" class="delete-column-btn text-red-500 hover:text-red-700 ml-1 text-xs no-print hidden">✖</button>`;
+
+      // Find the position to insert the new column (before Qty)
+      const qtyHeader = tableHeaderRow.querySelector('[data-column-type="qty"]');
+      tableHeaderRow.insertBefore(newHeader, qtyHeader);
+
+      // Add a new cell to each data row
+      document.querySelectorAll('.data-row').forEach(row => {
+        const newCell = document.createElement('td');
+        newCell.classList.add('px-4', 'py-2', 'text-center', 'measurement-cell');
+        newCell.setAttribute('contenteditable', 'true');
+        newCell.setAttribute('data-column-type', 'measurement'); // Add data-column-type
+        newCell.textContent = '0.00';
+        const qtyCell = row.querySelector('[data-column-type="qty"]');
+        row.insertBefore(newCell, qtyCell);
+      });
+
+      manageSqMtrColumn(); // Re-evaluate Sq/Mtr column visibility
+    }
+
+    /**
+     * Deletes a column from the table.
+     * @param {HTMLElement} button - The delete button element clicked.
+     */
+    function deleteColumn(button) {
+      const headerToDelete = button.closest('th');
+      if (!headerToDelete || headerToDelete.dataset.columnType === 's-no' || headerToDelete.dataset.columnType === 'description' || headerToDelete.dataset.columnType === 'qty' || headerToDelete.dataset.columnType === 'rate' || headerToDelete.dataset.columnType === 'amount' || headerToDelete.dataset.columnType === 'add-column') {
+        console.error("Cannot delete this core column.");
         return;
       }
 
-      const element = document.getElementById('invoice-container');
-      const refNumber = document.getElementById('ref').value || 'quotation';
-      const fileName = `Quotation-${refNumber.replace(/[/\\?%*:|"<>]/g, '-')}.pdf`;
+      const columnIndex = Array.from(tableHeaderRow.children).indexOf(headerToDelete);
 
-      const opt = {
-        margin: 0.2,
-        filename: fileName,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, logging: false },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['css', 'legacy'] }
-      };
+      // Remove the header
+      headerToDelete.remove();
 
-      try {
-        exportBtn.disabled = true;
-        exportBtn.classList.add('opacity-60', 'cursor-not-allowed');
-        exportStatus.textContent = 'Preparing PDF… (loading images & fonts)';
+      // Remove the corresponding cell from each data row
+      document.querySelectorAll('.data-row').forEach(row => {
+        if (row.cells[columnIndex]) {
+          row.cells[columnIndex].remove();
+        }
+      });
 
-        const images = element.querySelectorAll('img');
-        const imagePromises = Array.from(images).map(img => {
-          if (img.complete && img.naturalWidth > 0) return Promise.resolve();
-          return new Promise(resolve => { img.onload = img.onerror = resolve; });
-        });
-
-        const fontPromise = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
-        const settlePromise = new Promise(resolve => setTimeout(resolve, 50));
-
-        await Promise.all([Promise.all(imagePromises), fontPromise, settlePromise]);
-
-        exportStatus.textContent = 'Rendering PDF…';
-        await html2pdf().set(opt).from(element).save();
-
-        exportStatus.textContent = 'Done. Your PDF has been downloaded.';
-      } catch (err) {
-        console.error(err);
-        exportStatus.textContent = 'Failed to export. See console for details.';
-        alert('Export failed. If you opened this file directly (file:///), please run it via a local server (http://localhost).');
-      } finally {
-        exportBtn.disabled = false;
-        exportBtn.classList.remove('opacity-60', 'cursor-not-allowed');
-        setTimeout(() => (exportStatus.textContent = ''), 4000);
-      }
+      manageSqMtrColumn(); // Re-evaluate Sq/Mtr column visibility
     }
 
-    // ---------- Events ----------
-    table.addEventListener('input', e => {
-      if (e.target.hasAttribute('contenteditable')) updateTotals();
+    // ---------- Drag and Drop Event Listeners ----------
+
+    // Event listener for when a drag operation starts on a header
+    tableHeaderRow.addEventListener('dragstart', (e) => {
+      // Ensure only draggable headers can initiate a drag and not the add column button
+      if (e.target.tagName === 'TH' && e.target.getAttribute('draggable') === 'true' && e.target.dataset.columnType !== 'add-column') {
+        draggedColumn = e.target;
+        e.dataTransfer.effectAllowed = 'move';
+        // Add a class for visual feedback during drag
+        setTimeout(() => draggedColumn.classList.add('opacity-50'), 0);
+      } else {
+        e.preventDefault(); // Prevent dragging of non-draggable elements
+      }
     });
 
-    table.addEventListener('click', e => {
-      if (e.target.classList.contains('delete-row')) {
-        e.preventDefault();
-        e.target.closest('.data-row')?.remove();
+    // Event listener for when a draggable element is dragged over a valid drop target
+    tableHeaderRow.addEventListener('dragover', (e) => {
+      e.preventDefault(); // Allow dropping
+      const target = e.target.closest('th');
+      // Ensure the target is a header, not the dragged column, and not the add column button
+      if (target && target !== draggedColumn && target.dataset.columnType !== 'add-column') {
+        // Add visual feedback to the potential drop target
+        target.classList.add('border-l-4', 'border-blue-500');
+      }
+    });
+
+    // Event listener for when a draggable element leaves a valid drop target
+    tableHeaderRow.addEventListener('dragleave', (e) => {
+      const target = e.target.closest('th');
+      if (target) {
+        // Remove visual feedback
+        target.classList.remove('border-l-4', 'border-blue-500');
+      }
+    });
+
+    // Event listener for when a draggable element is dropped on a valid drop target
+    tableHeaderRow.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const dropTarget = e.target.closest('th');
+
+      // Remove all dragover visual feedback from all headers
+      tableHeaderRow.querySelectorAll('th').forEach(th => {
+        th.classList.remove('border-l-4', 'border-blue-500');
+      });
+
+      // Proceed only if a column is being dragged, there's a valid drop target,
+      // and they are not the same column, and the drop target is not the add column button.
+      if (draggedColumn && dropTarget && draggedColumn !== dropTarget && dropTarget.dataset.columnType !== 'add-column') {
+        // Determine the correct insertion point (before or after the drop target)
+        const dropTargetRect = dropTarget.getBoundingClientRect();
+        const insertBeforeTarget = (e.clientX < dropTargetRect.left + dropTargetRect.width / 2) ? dropTarget : dropTarget.nextElementSibling;
+
+        // Store current cell references before DOM manipulation
+        const allRows = document.querySelectorAll('#invoice-table tbody .data-row');
+        const rowCellMaps = []; // Array to hold maps for each row's cells
+        allRows.forEach(row => {
+            const cellMap = new Map();
+            Array.from(row.children).forEach(cell => {
+                const type = cell.dataset.columnType;
+                cellMap.set(type, cell); // Store by data-column-type
+            });
+            rowCellMaps.push(cellMap);
+        });
+
+        // Reorder the header (<th>) elements in the DOM
+        tableHeaderRow.insertBefore(draggedColumn, insertBeforeTarget);
+
+        // Reorder the cells (<td>) in all data rows based on the new header order
+        const newHeaderOrder = Array.from(tableHeaderRow.children);
+        allRows.forEach((row, rowIndex) => {
+            const currentCellMap = rowCellMaps[rowIndex];
+            const newRowContent = document.createDocumentFragment();
+
+            newHeaderOrder.forEach(header => {
+                let cellToAppend = null;
+                if (header.dataset.columnType === 'add-column') {
+                    // The add-column header doesn't have a corresponding cell in data rows
+                    return;
+                }
+                cellToAppend = currentCellMap.get(header.dataset.columnType);
+
+                if (cellToAppend) {
+                    newRowContent.appendChild(cellToAppend);
+                }
+            });
+            // Replace the old row content with the new ordered content
+            row.innerHTML = ''; // Clear existing cells
+            row.appendChild(newRowContent);
+        });
+
+        // Update colspans and totals after reordering
+        updateCategoryRowColspans();
+        updateFooterColspans();
         updateTotals();
       }
     });
 
-    document.getElementById('date').valueAsDate = new Date();
-    window.addEventListener('load', updateTotals);
+    // Event listener for when a drag operation ends
+    tableHeaderRow.addEventListener('dragend', (e) => {
+      // Remove the opacity from the dragged column
+      if (draggedColumn) {
+        draggedColumn.classList.remove('opacity-50');
+        draggedColumn = null;
+      }
+      // Ensure no lingering dragover styles
+      tableHeaderRow.querySelectorAll('th').forEach(th => {
+        th.classList.remove('border-l-4', 'border-blue-500');
+      });
+    });
 
-    exportBtn.addEventListener('click', exportToPdf);
+    // ---------- Other Event Listeners ----------
+
+    // Listen for input events on the invoice table to trigger total recalculation
+    table.addEventListener('input', e => {
+      if (e.target.hasAttribute('contenteditable')) {
+        // If a header is edited, re-evaluate Sq/Mtr column
+        if (e.target.tagName === 'TH' && e.target.dataset.columnType === 'measurement') {
+          manageSqMtrColumn();
+        } else {
+          updateTotals();
+        }
+      }
+    });
+
+    // Listen for click events on the invoice table to handle row deletion
+    table.addEventListener('click', e => {
+      if (e.target.classList.contains('delete-row')) {
+        e.preventDefault(); // Prevent default button behavior
+        e.target.closest('.data-row')?.remove(); // Remove the closest parent with 'data-row' class
+        updateTotals(); // Recalculate totals after deleting a row
+        manageSqMtrColumn(); // Re-evaluate Sq/Mtr column visibility
+      }
+    });
+
+    // Show/hide delete button on hover for measurement headers
+    tableHeaderRow.addEventListener('mouseover', e => {
+      const targetHeader = e.target.closest('.measurement-header');
+      if (targetHeader) {
+        const deleteBtn = targetHeader.querySelector('.delete-column-btn');
+        if (deleteBtn) deleteBtn.classList.remove('hidden');
+      }
+    });
+
+    tableHeaderRow.addEventListener('mouseout', e => {
+      const targetHeader = e.target.closest('.measurement-header');
+      if (targetHeader) {
+        const deleteBtn = targetHeader.querySelector('.delete-column-btn');
+        if (deleteBtn) deleteBtn.classList.add('hidden');
+      }
+    });
+
+
+    // Listen for click events on header sections to handle header item deletion
+    document.getElementById('header-left').addEventListener('click', e => {
+      if (e.target.classList.contains('delete-header-item')) {
+        e.preventDefault();
+        e.target.closest('.header-item')?.remove();
+      }
+    });
+    document.getElementById('header-right').addEventListener('click', e => {
+      if (e.target.classList.contains('delete-header-item')) {
+        e.preventDefault();
+        e.target.closest('.header-item')?.remove();
+      }
+    });
+
+    // Set the current date as the default for the date input
+    document.getElementById('date').valueAsDate = new Date();
+
+    // Initial setup when the window loads
+    window.addEventListener('load', () => {
+      // No initial W/H columns added automatically. User will add them.
+      updateTotals();
+      manageSqMtrColumn(); // Check if Sq/Mtr should be present on load
+    });
+
+    // Event listener for the Print button
+    printBtn.addEventListener('click', () => {
+      // Before printing, update the span with the current VAT percentage
+      document.querySelector('#vat-percentage + span').textContent = `${vatPercentageInput.value}%`;
+      window.print(); // Triggers the browser's print dialog
+    });
   </script>
 </body>
 </html>
